@@ -3,38 +3,13 @@ import { IoEyeOutline } from "react-icons/io5";
 import { FaArrowTrendUp } from "react-icons/fa6";
 import { FaArrowTrendDown } from "react-icons/fa6";
 import { useState, useEffect } from "react";
-import supabase from "../components/supabase.jsx";
-
-const examples = [
-  {
-    id: 0,
-    amount: 200,
-    date: "2004-08-18",
-    member: "Jack Omusala",
-    type: "contribution",
-    description: "Medical Contribution",
-  },
-  {
-    id: 1,
-    amount: 200,
-    date: "2004-08-18",
-    member: "Jack Omusala",
-    type: "contribution",
-    description: "Medical Contribution",
-  },
-  {
-    id: 2,
-    amount: 200,
-    date: "2004-08-18",
-    member: "Martha Omusala",
-    type: "withdrawal",
-    description: "Medical Contribution",
-  },
-];
+import {useUser} from '../context/UserContext'
 
 function Contributions() {
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredTransactions, setFilteredTransactions] = useState([]);
+
+  const { filteredTransactions, setFilteredTransactions } = useUser();
 
   async function fetchTransactions() {
     const { data, error } = await supabase.from("transaction").select();
@@ -45,37 +20,6 @@ function Contributions() {
     const { data, error } = await supabase.from("members").select();
     return { data, error };
   }
-
-  useEffect(() => {
-    async function getData() {
-      const { data: transactionData, error: transactionError } =
-        await fetchTransactions();
-      console.log(transactionData);
-      const { data: membersData, error: membersError } = await fetchMembers();
-      console.log(membersData);
-      if (transactionData && membersData) {
-        // Create a map for quick member lookup
-        const memberMap = membersData.reduce((acc, member) => {
-          acc[member.id] = member.name;
-          return acc;
-        }, {});
-
-        // Map transactions to include member name
-        const transactionsWithMember = transactionData.map((tx) => ({
-          ...tx,
-          member: memberMap[tx.member_id] || "Unknown",
-        }));
-
-        setFilteredTransactions(transactionsWithMember);
-        localStorage.setItem(
-          "transactions",
-          JSON.stringify(transactionsWithMember)
-        );
-      }
-      // Optionally update state here
-    }
-    getData();
-  }, []);
 
   useEffect(() => {
     const stored = localStorage.getItem("transactions");
