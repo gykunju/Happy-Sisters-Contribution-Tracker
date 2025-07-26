@@ -1,34 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Home from './pages/Home'
-import {Routes, Route, useNavigate} from 'react-router-dom'
+import {Routes, Route} from 'react-router-dom'
 import Contributions from './pages/Contributions'
 import Signin from './pages/Signin'
 import Signup from './pages/Signup'
-import supabase from './components/supabase'
 import './App.css'
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const navigate = useNavigate()
-
-  // useEffect(()=>{
-  //   async function Session(){
-  //     const { data, error } = supabase.auth.getSession();
-  //     console.log(data)
-  //     console.log(error)
-  //     if (data) {
-  //       localStorage.setItem('user', data.name)  
-  //       return true
-  //     } else {
-  //       setIsLoggedIn(false)
-  //     }
-  //   }
-  //   if (!Session()){
-  //     navigate('/login')
-  //   }
-  // })
-  
-  
+  const [isLoggedIn, setIsLoggedIn] = useState(false)  
 
   return (
     <div class="bg-zinc-100 h-screen ">
