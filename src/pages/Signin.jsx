@@ -5,7 +5,7 @@ function Signin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { signIn } = useUser()
+  const { signIn, errors } = useUser()
 
   function handleSignIn(e) {
     e.preventDefault()
@@ -20,7 +20,10 @@ function Signin() {
 
   return (
     <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-blue-100 py-8 px-2">
-      <form class="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md flex flex-col gap-6 border border-slate-200" onSubmit={handleSignIn}>
+      <form
+        class="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md flex flex-col gap-6 border border-slate-200"
+        onSubmit={handleSignIn}
+      >
         <div class="flex flex-col items-center mb-2">
           <div class="bg-blue-100 rounded-full p-3 mb-2">
             <svg
@@ -77,6 +80,16 @@ function Signin() {
         >
           Sign In
         </button>
+        <div>
+          {errors.length > 0 ? 
+           errors.map(
+            err => (
+              <p id={coun}>{err}</p>
+            )
+            
+          ) : null
+        } 
+        </div>
         <div class="text-center text-sm text-slate-500 mt-2">
           Don't have an account?{" "}
           <a href="/signup" class="text-blue-600 hover:underline font-semibold">

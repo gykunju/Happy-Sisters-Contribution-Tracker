@@ -13,9 +13,11 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const userContext = createContext();
 
 export function UserProvider({ children }) {
+
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState();
+  const [errors, setErrors] = useState([])
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,6 +31,13 @@ export function UserProvider({ children }) {
     const { data, error } = await supabase.from("members").select();
     return { data, error };
   }
+
+  const userDetails = async () => {
+    const {data} = await supabase.auth.getUser()
+    console.log(data)
+    return data.user
+  }
+
 
   async function getData() {
     const { data: transactionData, error: transactionError } =
@@ -59,14 +68,19 @@ export function UserProvider({ children }) {
 
   async function checkSession() {
     const { data, error } = await supabase.auth.getSession();
-    if (!data.session) {
+    if (!data.session || !await userDetails()) {
       setIsLoggedIn(false);
 
       if (location.pathname !== "/signin" && location.pathname !== "/signup") {
         navigate("/signin");
       }
     } else {
+      localStorage.setItem(
+        "user",
+        `${data.session.user.user_metadata.first_name} ${data.session.user.user_metadata.last_name}`
+      );
       setIsLoggedIn(true);
+      navigate('/')
     }
     if (error) throw new Error(error);
   }
@@ -75,19 +89,29 @@ export function UserProvider({ children }) {
     checkSession();
     getData();
   }, []);
-
+  
 
   async function signUp(formData){
     const { data, error } = await supabase.auth.signUp(formData)
 
     if(data && !error){
         console.log(data)
+        const memberData = {
+          id: data.user.id,
+          name:
+            data.user.user_metadata.first_name + " " +
+            data.user.user_metadata.last_name,
+        };
+        const { error } = await supabase.from("members").insert(memberData);
+        if(error) throw new Error(error)
+
         setIsLoggedIn(true)
         navigate('/')
     } else {
         throw new Error(error)
     }
   }
+
 
   async function signIn(formData){
     const { data, error } = await supabase.auth.signInWithPassword(formData);
@@ -97,6 +121,9 @@ export function UserProvider({ children }) {
       setIsLoggedIn(true);
       navigate("/");
     } else {
+      console.log(error)
+      setErrors(error)
+      console.log(errors)
       throw new Error(error);
     }
   }
@@ -107,7 +134,8 @@ export function UserProvider({ children }) {
         filteredTransactions,
         setFilteredTransactions,
         signUp,
-        signIn
+        signIn, 
+        errors
       }}
     >
       {children}

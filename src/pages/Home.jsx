@@ -9,9 +9,10 @@ import { BsPeople } from "react-icons/bs";
 
 
 function Home(){
+
     return (
       <div class="bg-slate-100 min-h-screen font-sans text-zinc-600 text-lg p-6 flex flex-col gap-5">
-        <header class="flex flex-col">
+        <header class="flex flex-col p-2 bg-slate-200">
           <nav class="flex justify-between">
             <div class="flex items-center gap-2 font-bold">
               <FaMoneyBillWheat size={30} />
@@ -20,8 +21,8 @@ function Home(){
 
             <div>
               <div class="flex gap-2 items-center">
-                <MdPersonOutline size={25} />
-                <h3>Kate</h3>
+                <h3 class='font-medium'>{localStorage.getItem("user")}</h3>
+                <MdPersonOutline size={25} class='rounded-full border bg-slate-300'/>
               </div>
             </div>
           </nav>
