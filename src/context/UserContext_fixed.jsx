@@ -15,9 +15,7 @@ const userContext = createContext();
 export function UserProvider({ children }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredTransactions, setFilteredTransactions] = useState([]);
-  const [transactions, setTransactions] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState();
-  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState([]);
   const [members, setMembers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
@@ -44,9 +42,6 @@ export function UserProvider({ children }) {
 
   async function getData() {
     try {
-      setIsLoading(true);
-      console.log("Fetching data from Supabase...");
-
       const { data: transactionData, error: transactionError } =
         await fetchTransactions();
       const { data: membersData, error: membersError } = await fetchMembers();
@@ -62,11 +57,6 @@ export function UserProvider({ children }) {
       }
 
       if (transactionData && membersData) {
-        console.log("Successfully fetched data:", {
-          transactionData,
-          membersData,
-        });
-
         // Store members for dropdown
         setMembers(membersData);
         localStorage.setItem("members", JSON.stringify(membersData));
@@ -83,14 +73,11 @@ export function UserProvider({ children }) {
           member: memberMap[tx.member_id] || "Unknown",
         }));
 
-        setTransactions(transactionsWithMember);
         setFilteredTransactions(transactionsWithMember);
         localStorage.setItem(
           "transactions",
           JSON.stringify(transactionsWithMember)
         );
-
-        console.log("Data set in state:", transactionsWithMember);
       }
     } catch (error) {
       console.error("Error in getData:", error);
@@ -99,17 +86,11 @@ export function UserProvider({ children }) {
         localStorage.getItem("transactions") || "[]"
       );
       const localMembers = JSON.parse(localStorage.getItem("members") || "[]");
-      setTransactions(localTransactions);
       setFilteredTransactions(localTransactions);
       setMembers(localMembers);
-      console.log("Using localStorage fallback:", {
-        localTransactions,
-        localMembers,
-      });
-    } finally {
-      setIsLoading(false);
     }
   }
+
   async function checkSession() {
     const { data, error } = await supabase.auth.getSession();
     if (!data.session || !(await userDetails())) {
@@ -139,10 +120,6 @@ export function UserProvider({ children }) {
       }
 
       setIsLoggedIn(true);
-
-      // Fetch transactions and members data after session validation
-      await getData();
-
       navigate("/");
     }
     if (error) throw new Error(error);
@@ -150,7 +127,7 @@ export function UserProvider({ children }) {
 
   useEffect(() => {
     checkSession();
-    // getData() is now called within checkSession() after authentication
+    getData();
   }, []);
 
   async function signUp(formData) {
@@ -164,31 +141,17 @@ export function UserProvider({ children }) {
           data.user.user_metadata.first_name +
           " " +
           data.user.user_metadata.last_name,
-        role: "member", // Default role for new users
+        role: "member", // Default role
       };
       const { error: insertError } = await supabase
         .from("members")
         .insert(memberData);
-      if (insertError) throw insertError;
-
-      // Set user data in localStorage
-      const user = data.user;
-      setCurrentUser(user);
-      localStorage.setItem(
-        "user",
-        `${user.user_metadata.first_name} ${user.user_metadata.last_name}`
-      );
-      localStorage.setItem("userRole", "member");
-      setUserRole("member");
+      if (insertError) throw new Error(insertError);
 
       setIsLoggedIn(true);
-
-      // Fetch transactions and members data after successful signup
-      await getData();
-
       navigate("/");
     } else {
-      throw error || new Error("Failed to create account");
+      throw new Error(error);
     }
   }
 
@@ -197,36 +160,13 @@ export function UserProvider({ children }) {
 
     if (data && !error) {
       console.log(data);
-
-      // Set user data in localStorage
-      const user = data.user;
-      setCurrentUser(user);
-      localStorage.setItem(
-        "user",
-        `${user.user_metadata.first_name} ${user.user_metadata.last_name}`
-      );
-
-      // Get user role from members table
-      const { data: memberData, error: memberError } = await supabase
-        .from("members")
-        .select("role")
-        .eq("id", user.id)
-        .single();
-
-      if (memberData && !memberError) {
-        setUserRole(memberData.role);
-        localStorage.setItem("userRole", memberData.role);
-      }
-
       setIsLoggedIn(true);
-
-      // Fetch transactions and members data after successful login
-      await getData();
-
       navigate("/");
     } else {
       console.log(error);
-      throw error || new Error("Failed to sign in");
+      setErrors(error);
+      console.log(errors);
+      throw new Error(error);
     }
   }
 
@@ -291,8 +231,7 @@ export function UserProvider({ children }) {
       currentTransactions.push(newTransaction);
       localStorage.setItem("transactions", JSON.stringify(currentTransactions));
 
-      // Update both states
-      setTransactions(currentTransactions);
+      // Update the filtered transactions state
       setFilteredTransactions(currentTransactions);
 
       return { success: true, data: newTransaction };
@@ -302,51 +241,12 @@ export function UserProvider({ children }) {
     }
   }
 
-  // Delete transaction function
-  async function deleteTransaction(transactionId) {
-    try {
-      // First, check if user is admin
-      const currentUserRole = localStorage.getItem("userRole") || userRole;
-      if (currentUserRole !== "admin") {
-        throw new Error("Only admin users can delete transactions");
-      }
-
-      // Delete from Supabase
-      const { error } = await supabase
-        .from("transaction")
-        .delete()
-        .eq("id", transactionId);
-
-      if (error) {
-        console.error("Error deleting transaction from Supabase:", error);
-        throw new Error(error.message);
-      }
-
-      // Update localStorage
-      const currentTransactions = JSON.parse(
-        localStorage.getItem("transactions") || "[]"
-      );
-      const updatedTransactions = currentTransactions.filter(
-        (tx) => tx.id !== transactionId
-      );
-      localStorage.setItem("transactions", JSON.stringify(updatedTransactions));
-
-      // Update both states
-      setTransactions(updatedTransactions);
-      setFilteredTransactions(updatedTransactions);
-
-      return { success: true };
-    } catch (error) {
-      console.error("Error in deleteTransaction:", error);
-      return { success: false, error: error.message };
-    }
-  }
-
   // Sign out function
   async function signOut() {
     await supabase.auth.signOut();
     localStorage.removeItem("user");
     localStorage.removeItem("transactions");
+    localStorage.removeItem("userRole");
     setIsLoggedIn(false);
     navigate("/signin");
   }
@@ -361,19 +261,15 @@ export function UserProvider({ children }) {
       value={{
         filteredTransactions,
         setFilteredTransactions,
-        transactions,
         signUp,
         signIn,
         errors,
         addTransaction,
-        deleteTransaction,
         signOut,
         refreshTransactions,
         members,
         userRole,
         currentUser,
-        isLoading,
-        getData,
       }}
     >
       {children}

@@ -1,0 +1,34 @@
+{
+  "name": "Happy Sisters Contribution Tracker",
+  "short_name": "Happy Sisters",
+  "description": "Manage group financial contributions and track expenses efficiently",
+  "theme_color": "#3B82F6",
+  "background_color": "#F8FAFC",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "productivity"],
+  "shortcuts": [
+    {
+      "name": "View Transactions",
+      "short_name": "Transactions",
+      "description": "View all financial transactions",
+      "url": "/contributions",
+      "icons": [
+        {
+          "src": "/vite.svg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}
