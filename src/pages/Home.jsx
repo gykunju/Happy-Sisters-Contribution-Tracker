@@ -155,28 +155,28 @@ function Home() {
       {/* Main content with proper mobile spacing */}
       <div className="mobile-safe-area py-6 space-y-6">
         {/* Navigation Tabs */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-2">
-          <div className="flex gap-2">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-2 lg:max-w-4xl lg:mx-auto">
+          <div className="grid grid-cols-2 gap-2 lg:gap-4">
             <button
               onClick={() => setActiveTab("dashboard")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+              className={`flex items-center justify-center gap-2 px-4 py-3 lg:py-4 rounded-lg font-medium transition-all text-sm lg:text-base ${
                 activeTab === "dashboard"
                   ? "bg-blue-600 text-white shadow-sm"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
               }`}
             >
-              <MdDashboard size={18} />
+              <MdDashboard size={18} className="lg:w-6 lg:h-6" />
               <span>Dashboard</span>
             </button>
             <button
               onClick={() => setActiveTab("monthly")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+              className={`flex items-center justify-center gap-2 px-4 py-3 lg:py-4 rounded-lg font-medium transition-all text-sm lg:text-base ${
                 activeTab === "monthly"
                   ? "bg-blue-600 text-white shadow-sm"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
               }`}
             >
-              <MdBarChart size={18} />
+              <MdBarChart size={18} className="lg:w-6 lg:h-6" />
               <span>Monthly Analysis</span>
             </button>
           </div>
@@ -247,7 +247,6 @@ function Home() {
               </div>
 
               {/* Total Members Card */}
-              {userRole === "admin" && (
                 <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex justify-between items-center hover:shadow-sm transition-shadow">
                   <div className="flex flex-col">
                     <h4 className="font-medium text-xs text-orange-600 mb-1">
@@ -265,7 +264,6 @@ function Home() {
                     <BsPeople size={24} className="text-orange-600" />
                   </div>
                 </div>
-              )}
             </div>
 
             {/* Transactions Section */}
