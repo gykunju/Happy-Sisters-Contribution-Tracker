@@ -26,6 +26,7 @@ function Contributions() {
     transactions,
     isLoading,
     getData,
+    getVisibleTransactions,
   } = useUser();
 
   const handleDeleteTransaction = async (transactionId) => {
@@ -75,11 +76,8 @@ function Contributions() {
   }, []);
 
   useEffect(() => {
-    // Get transactions from UserContext (Supabase) or fallback to localStorage
-    const allTransactions =
-      transactions && transactions.length > 0
-        ? transactions
-        : JSON.parse(localStorage.getItem("transactions") || "[]");
+    // Get role-based visible transactions
+    const allTransactions = getVisibleTransactions();
 
     let filtered = allTransactions;
 
@@ -98,7 +96,7 @@ function Contributions() {
     }
 
     setFilteredTransactions(filtered);
-  }, [searchTerm, filterType, transactions, setFilteredTransactions]);
+  }, [searchTerm, filterType, transactions]);
 
   const handleAddTransaction = async (e) => {
     e.preventDefault();

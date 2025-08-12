@@ -351,6 +351,95 @@ export function UserProvider({ children }) {
     navigate("/signin");
   }
 
+  // Filter transactions based on user role (for transaction listing)
+  const getVisibleTransactions = () => {
+    if (!transactions || transactions.length === 0) return [];
+
+    const currentUserName = localStorage.getItem("user") || "";
+    const currentRole =
+      userRole || localStorage.getItem("userRole") || "member";
+
+    if (currentRole === "admin") {
+      // Admin can see all transactions
+      return transactions;
+    } else {
+      // Members can only see their own transactions
+      return transactions.filter(
+        (t) =>
+          t.member && t.member.toLowerCase() === currentUserName.toLowerCase()
+      );
+    }
+  };
+
+  // Get all transactions for statistics (members can see group stats)
+  const getStatsTransactions = () => {
+    if (!transactions || transactions.length === 0) return [];
+    // Both admin and members can see all transactions for stats
+    return transactions;
+  };
+
+  // Get monthly breakdown of contributions with filter option
+  const getMonthlyBreakdown = (filterType = "visible") => {
+    let targetTransactions;
+
+    if (filterType === "personal") {
+      // Always show only current user's transactions
+      const currentUserName = localStorage.getItem("user") || "";
+      targetTransactions = transactions.filter(
+        (t) =>
+          t.member && t.member.toLowerCase() === currentUserName.toLowerCase()
+      );
+    } else if (filterType === "group") {
+      // Always show all transactions (for group analysis)
+      targetTransactions = transactions || [];
+    } else {
+      // Default: use stats-based visibility (all transactions for stats)
+      targetTransactions = getStatsTransactions();
+    }
+
+    const monthlyData = {};
+
+    targetTransactions.forEach((transaction) => {
+      const date = new Date(transaction.date);
+      const monthKey = `${date.getFullYear()}-${String(
+        date.getMonth() + 1
+      ).padStart(2, "0")}`;
+      const monthName = date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+      });
+
+      if (!monthlyData[monthKey]) {
+        monthlyData[monthKey] = {
+          month: monthName,
+          contributions: 0,
+          withdrawals: 0,
+          transactionCount: 0,
+          members: new Set(),
+        };
+      }
+
+      if (transaction.type.toLowerCase() === "contribution") {
+        monthlyData[monthKey].contributions += parseFloat(transaction.amount);
+      } else if (transaction.type.toLowerCase() === "withdrawal") {
+        monthlyData[monthKey].withdrawals += parseFloat(transaction.amount);
+      }
+
+      monthlyData[monthKey].transactionCount += 1;
+      monthlyData[monthKey].members.add(transaction.member);
+    });
+
+    // Convert Set to array for member count and sort by date
+    return Object.keys(monthlyData)
+      .sort((a, b) => new Date(b) - new Date(a))
+      .map((key) => ({
+        ...monthlyData[key],
+        memberCount: monthlyData[key].members.size,
+        members: Array.from(monthlyData[key].members),
+        net: monthlyData[key].contributions - monthlyData[key].withdrawals,
+      }));
+  };
+
   // Refresh transactions from Supabase
   async function refreshTransactions() {
     await getData();
@@ -362,6 +451,9 @@ export function UserProvider({ children }) {
         filteredTransactions,
         setFilteredTransactions,
         transactions,
+        getVisibleTransactions,
+        getStatsTransactions,
+        getMonthlyBreakdown,
         signUp,
         signIn,
         errors,
