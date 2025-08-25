@@ -36,7 +36,6 @@ export function UserProvider({ children }) {
 
   const userDetails = async () => {
     const { data } = await supabase.auth.getUser();
-    console.log(data);
     return data.user;
   };
 
@@ -134,7 +133,6 @@ export function UserProvider({ children }) {
     const { data, error } = await supabase.auth.signUp(formData);
 
     if (data && !error) {
-      console.log(data);
       const memberData = {
         id: data.user.id,
         name:
@@ -159,13 +157,10 @@ export function UserProvider({ children }) {
     const { data, error } = await supabase.auth.signInWithPassword(formData);
 
     if (data && !error) {
-      console.log(data);
       setIsLoggedIn(true);
       navigate("/");
     } else {
-      console.log(error);
       setErrors(error);
-      console.log(errors);
       throw new Error(error);
     }
   }

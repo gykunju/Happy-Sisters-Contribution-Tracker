@@ -38,14 +38,12 @@ export function UserProvider({ children }) {
 
   const userDetails = async () => {
     const { data } = await supabase.auth.getUser();
-    console.log(data);
     return data.user;
   };
 
   async function getData() {
     try {
       setIsLoading(true);
-      console.log("Fetching data from Supabase...");
 
       const { data: transactionData, error: transactionError } =
         await fetchTransactions();
@@ -62,11 +60,6 @@ export function UserProvider({ children }) {
       }
 
       if (transactionData && membersData) {
-        console.log("Successfully fetched data:", {
-          transactionData,
-          membersData,
-        });
-
         // Store members for dropdown
         setMembers(membersData);
         localStorage.setItem("members", JSON.stringify(membersData));
@@ -89,8 +82,6 @@ export function UserProvider({ children }) {
           "transactions",
           JSON.stringify(transactionsWithMember)
         );
-
-        console.log("Data set in state:", transactionsWithMember);
       }
     } catch (error) {
       console.error("Error in getData:", error);
@@ -102,10 +93,6 @@ export function UserProvider({ children }) {
       setTransactions(localTransactions);
       setFilteredTransactions(localTransactions);
       setMembers(localMembers);
-      console.log("Using localStorage fallback:", {
-        localTransactions,
-        localMembers,
-      });
     } finally {
       setIsLoading(false);
     }
@@ -157,7 +144,6 @@ export function UserProvider({ children }) {
     const { data, error } = await supabase.auth.signUp(formData);
 
     if (data && !error) {
-      console.log(data);
       const memberData = {
         id: data.user.id,
         name:
@@ -196,8 +182,6 @@ export function UserProvider({ children }) {
     const { data, error } = await supabase.auth.signInWithPassword(formData);
 
     if (data && !error) {
-      console.log(data);
-
       // Set user data in localStorage
       const user = data.user;
       setCurrentUser(user);
@@ -225,7 +209,6 @@ export function UserProvider({ children }) {
 
       navigate("/");
     } else {
-      console.log(error);
       throw error || new Error("Failed to sign in");
     }
   }

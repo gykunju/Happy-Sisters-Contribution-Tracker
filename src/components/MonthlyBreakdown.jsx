@@ -28,17 +28,6 @@ function MonthlyBreakdown() {
 
   const monthlyData = getMonthlyBreakdown(analysisFilter);
 
-  // Debug logging
-  console.log("MonthlyBreakdown Debug:", {
-    analysisFilter,
-    monthlyData,
-    monthlyDataLength: monthlyData?.length,
-    user,
-    userRole,
-    hasTransactions: transactions?.length > 0,
-    transactionsCount: transactions?.length || 0,
-  });
-
   const maxAmount =
     monthlyData?.length > 0
       ? Math.max(

@@ -70,7 +70,6 @@ function Contributions() {
   useEffect(() => {
     // Ensure data is loaded when component mounts
     if (!transactions || transactions.length === 0) {
-      console.log("No transactions found, fetching data...");
       getData();
     }
   }, []);

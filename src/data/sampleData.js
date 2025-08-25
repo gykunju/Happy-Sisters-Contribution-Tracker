@@ -62,7 +62,6 @@ const sampleTransactions = [
 function addSampleData() {
   localStorage.setItem("transactions", JSON.stringify(sampleTransactions));
   localStorage.setItem("user", "Test User");
-  console.log("Sample data added successfully!");
 }
 
 // Add this to browser console to populate data:

@@ -7,6 +7,7 @@ import {
   MdKeyboardArrowDown,
   MdDashboard,
   MdBarChart,
+  MdPayment,
 } from "react-icons/md";
 import { FaMoneyBillWheat } from "react-icons/fa6";
 import { LuWallet } from "react-icons/lu";
@@ -19,7 +20,7 @@ import { useUser } from "../context/UserContext";
 
 function Home() {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [activeTab, setActiveTab] = useState("dashboard"); // 'dashboard' or 'monthly'
+  const [activeTab, setActiveTab] = useState("dashboard"); // 'dashboard', 'monthly', or 'payment'
   const {
     signOut,
     userRole,
@@ -155,29 +156,31 @@ function Home() {
       {/* Main content with proper mobile spacing */}
       <div className="mobile-safe-area py-6 space-y-6">
         {/* Navigation Tabs */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-2 lg:max-w-4xl lg:mx-auto">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-2 lg:max-w-6xl lg:mx-auto">
           <div className="grid grid-cols-2 gap-2 lg:gap-4">
             <button
               onClick={() => setActiveTab("dashboard")}
-              className={`flex items-center justify-center gap-2 px-4 py-3 lg:py-4 rounded-lg font-medium transition-all text-sm lg:text-base ${
+              className={`flex items-center justify-center gap-2 px-3 py-3 lg:py-4 rounded-lg font-medium transition-all text-xs sm:text-sm lg:text-base ${
                 activeTab === "dashboard"
                   ? "bg-blue-600 text-white shadow-sm"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
               }`}
             >
               <MdDashboard size={18} className="lg:w-6 lg:h-6" />
-              <span>Dashboard</span>
+              <span className="hidden sm:inline">Dashboard</span>
+              <span className="sm:hidden">Home</span>
             </button>
             <button
               onClick={() => setActiveTab("monthly")}
-              className={`flex items-center justify-center gap-2 px-4 py-3 lg:py-4 rounded-lg font-medium transition-all text-sm lg:text-base ${
+              className={`flex items-center justify-center gap-2 px-3 py-3 lg:py-4 rounded-lg font-medium transition-all text-xs sm:text-sm lg:text-base ${
                 activeTab === "monthly"
-                  ? "bg-blue-600 text-white shadow-sm"
+                  ? "bg-purple-600 text-white shadow-sm"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
               }`}
             >
               <MdBarChart size={18} className="lg:w-6 lg:h-6" />
-              <span>Monthly Analysis</span>
+              <span className="hidden sm:inline">Analytics</span>
+              <span className="sm:hidden">Stats</span>
             </button>
           </div>
         </div>
@@ -247,23 +250,23 @@ function Home() {
               </div>
 
               {/* Total Members Card */}
-                <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex justify-between items-center hover:shadow-sm transition-shadow">
-                  <div className="flex flex-col">
-                    <h4 className="font-medium text-xs text-orange-600 mb-1">
-                      Total Members
-                    </h4>
-                    {isLoading ? (
-                      <div className="w-12 h-6 bg-orange-200 rounded animate-pulse"></div>
-                    ) : (
-                      <h1 className="text-xl font-bold text-orange-800">
-                        {stats.totalMembers}
-                      </h1>
-                    )}
-                  </div>
-                  <div className="p-2 bg-orange-100 rounded-lg">
-                    <BsPeople size={24} className="text-orange-600" />
-                  </div>
+              <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 flex justify-between items-center hover:shadow-sm transition-shadow">
+                <div className="flex flex-col">
+                  <h4 className="font-medium text-xs text-orange-600 mb-1">
+                    Total Members
+                  </h4>
+                  {isLoading ? (
+                    <div className="w-12 h-6 bg-orange-200 rounded animate-pulse"></div>
+                  ) : (
+                    <h1 className="text-xl font-bold text-orange-800">
+                      {stats.totalMembers}
+                    </h1>
+                  )}
                 </div>
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <BsPeople size={24} className="text-orange-600" />
+                </div>
+              </div>
             </div>
 
             {/* Transactions Section */}
